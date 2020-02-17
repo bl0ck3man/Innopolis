@@ -17,3 +17,6 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 /users.http
+
+
+git checkout tags/v1.0 -b v1.0-branch
