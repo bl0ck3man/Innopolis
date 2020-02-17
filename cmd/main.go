@@ -1,11 +1,20 @@
 package main
 
 import (
-	"context"
-	postgres "github.com/blac3kman/Innopolis/pkg"
+	"fmt"
+	"github.com/gorilla/mux"
+	"net/http"
 )
 
 func main() {
-	db := postgres.Connection
-	ctx := context.Background()
+	router := mux.NewRouter()
+
+	router.HandleFunc("/", handler).Methods(http.MethodGet)
+	if err := http.ListenAndServe(":8080", router); err != nil {
+		panic(err.Error())
+	}
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello World!")
 }
