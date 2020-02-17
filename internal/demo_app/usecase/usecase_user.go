@@ -1,4 +1,4 @@
-package usecase
+package usecase_user
 
 import "github.com/blac3kman/Innopolis/internal/demo_app/entities"
 
