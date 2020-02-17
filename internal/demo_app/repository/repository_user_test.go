@@ -2,6 +2,7 @@ package repository_test
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/blac3kman/Innopolis/internal/demo_app/entities"
@@ -140,28 +141,54 @@ func Test_repo_Create(t *testing.T) {
 	}
 }
 
-/*func Test_repo_Delete(t *testing.T) {
-	type fields struct {
-		ctx context.Context
-		db  *sqlx.DB
-	}
+func Test_repo_Delete(t *testing.T) {
+	queryTml := "DELETE FROM demo.public.users where id = $1"
+
 	type args struct {
 		id int64
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
+		name       string
+		fields     fields
+		args       args
+		want       error
+		wantErr    bool
+		setUpMocks func(mock sqlmock.Sqlmock, args args, want error)
 	}{
-		// TODO: Add test cases.
+		{
+			name:   "Success delete user",
+			fields: getFieldsMocks(),
+			args: args{
+				id: 1,
+			},
+			want:    nil,
+			wantErr: false,
+			setUpMocks: func(mock sqlmock.Sqlmock, args args, want error) {
+				mock.ExpectExec(queryTml).
+					WithArgs(args.id).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+			},
+		},
+		{
+			name:   "Error delete user",
+			fields: getFieldsMocks(),
+			args: args{
+				id: 1,
+			},
+			want:    sql.ErrNoRows,
+			wantErr: true,
+			setUpMocks: func(mock sqlmock.Sqlmock, args args, want error) {
+				mock.ExpectQuery(queryTml).
+					WithArgs(args.id).
+					WillReturnError(want)
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &repo{
-				ctx: tt.fields.ctx,
-				db:  tt.fields.db,
-			}
+			r := repository.New(tt.fields.ctx, tt.fields.sqlx)
+			tt.setUpMocks(tt.fields.sqlmock, tt.args, tt.want)
+
 			if err := r.Delete(tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("Delete() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -170,28 +197,66 @@ func Test_repo_Create(t *testing.T) {
 }
 
 func Test_repo_Read(t *testing.T) {
-	type fields struct {
-		ctx context.Context
-		db  *sqlx.DB
-	}
+	rowsTml := []string{`id`, `name`, `email`}
+	queryTml := "SELECT * FROM demo.public.users where id = $1"
+
 	type args struct {
 		id int64
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    entities.User
-		wantErr bool
+		name       string
+		fields     fields
+		args       args
+		want       entities.User
+		wantErr    bool
+		setUpMocks func(mock sqlmock.Sqlmock, args args, want entities.User)
 	}{
-		// TODO: Add test cases.
+		{
+			name:   "Success read user",
+			fields: getFieldsMocks(),
+			args: args{
+				id: 1,
+			},
+			want: entities.User{
+				ID:    1,
+				Name:  `gopher`,
+				Email: `gopher@kazan.ru`,
+			},
+			wantErr: false,
+			setUpMocks: func(mock sqlmock.Sqlmock, args args, want entities.User) {
+				rows := sqlmock.NewRows(rowsTml)
+
+				rows.AddRow(
+					want.ID,
+					want.Name,
+					want.Email,
+				)
+
+				mock.ExpectQuery(queryTml).
+					WithArgs(args.id).
+					WillReturnRows(rows)
+			},
+		},
+		{
+			name:   "Error_read_user",
+			fields: getFieldsMocks(),
+			args: args{
+				id: 1,
+			},
+			want:    entities.User{},
+			wantErr: true,
+			setUpMocks: func(mock sqlmock.Sqlmock, args args, want entities.User) {
+				mock.ExpectQuery(queryTml).
+					WithArgs(args.id).
+					WillReturnError(sql.ErrNoRows)
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &repo{
-				ctx: tt.fields.ctx,
-				db:  tt.fields.db,
-			}
+			r := repository.New(tt.fields.ctx, tt.fields.sqlx)
+			tt.setUpMocks(tt.fields.sqlmock, tt.args, tt.want)
+
 			got, err := r.Read(tt.args.id)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Read() error = %v, wantErr %v", err, tt.wantErr)
@@ -205,29 +270,70 @@ func Test_repo_Read(t *testing.T) {
 }
 
 func Test_repo_UpdateEmail(t *testing.T) {
-	type fields struct {
-		ctx context.Context
-		db  *sqlx.DB
-	}
+	rowsTml := []string{`id`, `name`, `email`}
+	queryTml := "UPDATE demo.public.users set email = $2 where id = $1 RETURNING *;"
+
 	type args struct {
 		id    int64
 		email string
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    entities.User
-		wantErr bool
+		name       string
+		fields     fields
+		args       args
+		want       entities.User
+		wantErr    bool
+		setUpMocks func(mock sqlmock.Sqlmock, args args, want entities.User)
 	}{
-		// TODO: Add test cases.
+		{
+			name:   "Success update email user",
+			fields: getFieldsMocks(),
+			args: args{
+				id:    1,
+				email: `updatedGopher@kazan.ru`,
+			},
+			want: entities.User{
+				ID:    1,
+				Name:  `gopher`,
+				Email: `updatedGopher@kazan.ru`,
+			},
+			wantErr: false,
+			setUpMocks: func(mock sqlmock.Sqlmock, args args, want entities.User) {
+				rows := sqlmock.NewRows(rowsTml)
+
+				rows.AddRow(
+					want.ID,
+					want.Name,
+					want.Email,
+				)
+
+				mock.ExpectQuery(queryTml).
+					WithArgs(args.id, args.email).
+					WillReturnRows(rows)
+			},
+		},
+		{
+			name:   "Error update email user",
+			fields: getFieldsMocks(),
+			args: args{
+				id:    1,
+				email: `updatedGopher@kazan.ru`,
+			},
+			want:    entities.User{},
+			wantErr: true,
+			setUpMocks: func(mock sqlmock.Sqlmock, args args, want entities.User) {
+				mock.ExpectQuery(queryTml).
+					WithArgs(args.id, args.email).
+					WillReturnError(sql.ErrNoRows)
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &repo{
-				ctx: tt.fields.ctx,
-				db:  tt.fields.db,
-			}
+
+			r := repository.New(tt.fields.ctx, tt.fields.sqlx)
+			tt.setUpMocks(tt.fields.sqlmock, tt.args, tt.want)
+
 			got, err := r.UpdateEmail(tt.args.id, tt.args.email)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("UpdateEmail() error = %v, wantErr %v", err, tt.wantErr)
@@ -238,4 +344,4 @@ func Test_repo_UpdateEmail(t *testing.T) {
 			}
 		})
 	}
-}*/
+}
