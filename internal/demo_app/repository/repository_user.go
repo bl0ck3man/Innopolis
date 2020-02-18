@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	//mockery -name=user
+	//go:generate mockery -name=user
 	User interface {
 		Create(name, email string) (entities.User, error)
 		Read(id int64) (entities.User, error)
