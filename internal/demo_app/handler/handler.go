@@ -1,8 +1,8 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
-	"fmt"
 	usecase_user "github.com/blac3kman/Innopolis/internal/demo_app/usecase"
 	"net/http"
 )
@@ -59,13 +59,113 @@ func (h *handler) AddUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) GetUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World!")
+	w.Header().Set(`Content-type`, `application/json`)
+
+	type payload struct {
+		Id int64 `json:"user_id"`
+	}
+
+	p := new(payload)
+
+	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+
+		return
+	}
+
+	if p.Id == 0 {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+
+		return
+	}
+
+	user, err := h.us.Get(p.Id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+
+			return
+		}
+
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(user)
 }
 
 func (h *handler) EditUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World!")
+	w.Header().Set(`Content-type`, `application/json`)
+
+	type payload struct {
+		Id int64 `json:"user_id"`
+		Email string `json:"email"`
+	}
+
+	p := new(payload)
+
+	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+
+		return
+	}
+
+	if p.Id == 0 || len(p.Email) == 0 {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+
+		return
+	}
+
+	user, err := h.us.UpdateEmail(p.Id, p.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+
+			return
+		}
+
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
+		return
+	}
+
+	json.NewEncoder(w).Encode(user)
 }
 
 func (h *handler) RemoveUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World!")
+	w.Header().Set(`Content-type`, `application/json`)
+
+	type payload struct {
+		Id int64 `json:"user_id"`
+	}
+
+	p := new(payload)
+
+	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+
+		return
+	}
+
+	if p.Id == 0 {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+
+		return
+	}
+
+	err := h.us.Delete(p.Id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+
+			return
+		}
+
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(http.StatusText(http.StatusOK)))
 }
