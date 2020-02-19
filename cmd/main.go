@@ -1,14 +1,22 @@
 package main
 
 import (
+	"context"
 	"github.com/blac3kman/Innopolis/internal/demo_app/handler"
+	"github.com/blac3kman/Innopolis/internal/demo_app/repository"
+	usecase_user "github.com/blac3kman/Innopolis/internal/demo_app/usecase"
+	postgres "github.com/blac3kman/Innopolis/pkg"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
 func main() {
 	router := mux.NewRouter()
-	h := handler.New()
+
+	db := postgres.Connection
+	repo := repository.New(context.Background(), db)
+	useCase := usecase_user.New(repo)
+	h := handler.New(useCase)
 
 	router.HandleFunc("/user", h.GetUser).Methods(http.MethodGet)
 	router.HandleFunc("/user/add", h.AddUser).Methods(http.MethodPost)
