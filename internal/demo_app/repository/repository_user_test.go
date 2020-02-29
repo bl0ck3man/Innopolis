@@ -78,12 +78,12 @@ func Test_repo_Create(t *testing.T) {
 			fields: getFieldsMocks(),
 			args:args{
 				name:  "gopher",
-				email: "gopher@kazan.ru",
+				email: "gopher@innopolis.ru",
 			},
 			want: entities.User{
 				ID:    1,
 				Name:  "gopher",
-				Email: "gopher@kazan.ru",
+				Email: "gopher@innopolis.ru",
 			},
 			wantErr: false,
 			setMock: func(mock sqlmock.Sqlmock, args args, want entities.User) {
@@ -105,7 +105,7 @@ func Test_repo_Create(t *testing.T) {
 			fields: getFieldsMocks(),
 			args: args{
 				name:  "gopher",
-				email: "gopher@kazan.ru",
+				email: "gopher@innopolis.ru",
 			},
 			want: entities.User{},
 			wantErr: true,
@@ -220,7 +220,7 @@ func Test_repo_Read(t *testing.T) {
 			want: entities.User{
 				ID:    1,
 				Name:  `gopher`,
-				Email: `gopher@kazan.ru`,
+				Email: `gopher@innopolis.ru`,
 			},
 			wantErr: false,
 			setUpMocks: func(mock sqlmock.Sqlmock, args args, want entities.User) {
@@ -290,12 +290,12 @@ func Test_repo_UpdateEmail(t *testing.T) {
 			fields: getFieldsMocks(),
 			args: args{
 				id:    1,
-				email: `updatedGopher@kazan.ru`,
+				email: `updatedGopher@innopolis.ru`,
 			},
 			want: entities.User{
 				ID:    1,
 				Name:  `gopher`,
-				Email: `updatedGopher@kazan.ru`,
+				Email: `updatedGopher@innopolis.ru`,
 			},
 			wantErr: false,
 			setUpMocks: func(mock sqlmock.Sqlmock, args args, want entities.User) {
@@ -317,7 +317,7 @@ func Test_repo_UpdateEmail(t *testing.T) {
 			fields: getFieldsMocks(),
 			args: args{
 				id:    1,
-				email: `updatedGopher@kazan.ru`,
+				email: `updatedGopher@innopolis.ru`,
 			},
 			want:    entities.User{},
 			wantErr: true,

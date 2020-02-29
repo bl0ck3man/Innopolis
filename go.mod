@@ -10,5 +10,6 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/stretchr/testify v1.4.0
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5 // indirect
+	golang.org/x/perf v0.0.0-20191209155426-36b577b0eb03 // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 )

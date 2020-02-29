@@ -61,7 +61,7 @@ func Test_usecase_Create(t *testing.T) {
 			},
 			args: args{
 				name:  "gopher",
-				email: "gopner@kazan.ru",
+				email: "gopner@innopolis.ru",
 			},
 			want: entities.User{
 				ID:    1,
@@ -82,7 +82,7 @@ func Test_usecase_Create(t *testing.T) {
 			},
 			args: args{
 				name:  "gopher",
-				email: "gopner@kazan.ru",
+				email: "gopner@innopolis.ru",
 			},
 			want:    entities.User{},
 			wantErr: true,
@@ -191,7 +191,7 @@ func Test_usecase_Get(t *testing.T) {
 			want: entities.User{
 				ID:    1,
 				Name:  `gopher`,
-				Email: `gopher@kazan.ru`,
+				Email: `gopher@innopolis.ru`,
 			},
 			wantErr: false,
 		},
@@ -256,12 +256,12 @@ func Test_usecase_UpdateEmail(t *testing.T) {
 			},
 			args: args{
 				id:    1,
-				email: `newGopher@kazan.ru`,
+				email: `newGopher@innopolis.ru`,
 			},
 			want: entities.User{
 				ID:    1,
 				Name:  `gopher`,
-				Email: `newGopher@kazan.ru`,
+				Email: `newGopher@innopolis.ru`,
 			},
 			wantErr: false,
 		},
@@ -277,7 +277,7 @@ func Test_usecase_UpdateEmail(t *testing.T) {
 			},
 			args: args{
 				id:    1,
-				email: `newGopher@kazan.ru`,
+				email: `newGopher@innopolis.ru`,
 			},
 			want:    entities.User{},
 			wantErr: true,
