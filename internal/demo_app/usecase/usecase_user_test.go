@@ -66,7 +66,7 @@ func Test_usecase_Create(t *testing.T) {
 			want: entities.User{
 				ID:    1,
 				Name:  `gopher`,
-				Email: `gopher@kanan.ru`,
+				Email: `gopher@innopolis.ru`,
 			},
 			wantErr: false,
 		},
