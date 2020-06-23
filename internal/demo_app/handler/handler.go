@@ -48,7 +48,7 @@ func (h *handler) AddUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.us.Create(p.Name, p.Email)
+	user, err := h.us.Create(r.Context(), p.Name, p.Email)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 
@@ -79,7 +79,7 @@ func (h *handler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.us.Get(p.Id)
+	user, err := h.us.Get(r.Context(), p.Id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -116,7 +116,7 @@ func (h *handler) EditUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.us.UpdateEmail(p.Id, p.Email)
+	user, err := h.us.UpdateEmail(r.Context(), p.Id, p.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -153,7 +153,7 @@ func (h *handler) RemoveUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.us.Delete(p.Id)
+	err := h.us.Delete(r.Context(), p.Id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)

@@ -1,0 +1,61 @@
+version: '3.7'
+
+services:
+  pgbouncer:
+    user: "${USER_ID}:${GROUP_ID}"
+    hostname: pgbouncer
+    build:
+      context: images/pgbouncer/
+      args:
+        - uid=${USER_ID}
+        - gid=${GROUP_ID}
+    container_name: pgbouncer
+    restart: always
+    ports:
+      - "6432:5432"
+    volumes:
+      - ${IMAGES_DIR}/pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
+    environment:
+      - TZ=$TZ
+      - DB_USER=$PG_USERNAME
+      - DB_PASSWORD=$PG_PASSWORD
+      - DB_NAME=$PG_DATABASE
+      - DB_HOST=postgres
+      - MAX_CLIENT_CONN=$PGBOUNCER_MAX_CLIENT_CONN
+      - POOL_MODE=$PGBOUNCER_POOL_MODE
+      - DEFAULT_POOL_SIZE=$PGBOUNCER_DEFAULT_POOL_SIZE
+    networks:
+      static-network:
+        ipv4_address: $PGBOUNCER_STATIC_IP_ADDRESS
+    links:
+      - postgres:postgres
+  postgres:
+    user: "${USER_ID}:${GROUP_ID}"
+    hostname: postgres
+    build:
+      context: images/postgres/
+      args:
+        - uid=${USER_ID}
+        - gid=${GROUP_ID}
+    container_name: postgres
+    restart: always
+    volumes:
+      - ${VOLUMES_DIR}/postgres:${PG_DATA}:cached
+      - ${VOLUMES_DIR}/logs/postgres:/var/log/postgresql:cached
+      - ${IMAGES_DIR}/postgres/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+    environment:
+      - TZ=$TZ
+      - POSTGRES_USER=$PG_USERNAME
+      - POSTGRES_PASSWORD=$PG_PASSWORD
+      - POSTGRES_DB=$PG_DATABASE
+      - PGDATA=$PG_DATA
+    networks:
+      static-network:
+        ipv4_address: $POSTGRES_STATIC_IP_ADDRESS
+
+networks:
+  static-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: $NETWORKS_SUBNET

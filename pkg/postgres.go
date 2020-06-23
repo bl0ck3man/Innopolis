@@ -20,7 +20,7 @@ const (
 )
 
 func newConfig() *sqlx.DB {
-	err := godotenv.Load("/Users/svivanenko/Developer/projects/avito/go/src/go.avito.ru/ss/testing/demo/.env")
+	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error occurred by reading env file")
 	}

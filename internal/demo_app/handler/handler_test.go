@@ -1,19 +1,22 @@
 package handler_test
 
 import (
+	"context"
 	"database/sql"
 	"errors"
-	"github.com/blac3kman/Innopolis/internal/demo_app/entities"
-	"github.com/blac3kman/Innopolis/internal/demo_app/handler"
-	usecase_user "github.com/blac3kman/Innopolis/internal/demo_app/usecase"
-	"github.com/blac3kman/Innopolis/internal/demo_app/usecase/mocks"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/blac3kman/Innopolis/internal/demo_app/entities"
+	"github.com/blac3kman/Innopolis/internal/demo_app/handler"
+	usecase_user "github.com/blac3kman/Innopolis/internal/demo_app/usecase"
+	"github.com/blac3kman/Innopolis/internal/demo_app/usecase/mocks"
 )
 
 type args struct {
@@ -75,29 +78,29 @@ func Test_handler_AddUser(t *testing.T) {
 			fields: func() fields {
 
 				mock := mocks.User{}
-				mock.On(`Create`, `gopher`, `gopher@innopolis.ru`).Return(entities.User{
+				mock.On(`Create`, context.TODO(), `gopher`, `gopher@kaliningrad.ru`).Return(entities.User{
 					ID:    1,
 					Name:  "gopher",
-					Email: "gopher@innopolis.ru",
+					Email: "gopher@kaliningrad.ru",
 				}, nil)
 
 				return fields{
 					us: &mock,
 				}
 			},
-			args:           setUpArgs(http.MethodPost, route, `{"name": "gopher", "email": "gopher@innopolis.ru"}`),
+			args:           setUpArgs(http.MethodPost, route, `{"name": "gopher", "email": "gopher@kaliningrad.ru"}`),
 			wantStatusCode: http.StatusOK,
-			wantBody:       `{"id":1,"name":"gopher","email":"gopher@innopolis.ru"}`,
+			wantBody:       `{"id":1,"name":"gopher","email":"gopher@kaliningrad.ru"}`,
 		},
 		{
 			name: `Bad request - empty email`,
 			fields: func() fields {
 
 				mock := mocks.User{}
-				mock.On(`Create`, `gopher`, `gopher@innopolis.ru`).Return(entities.User{
+				mock.On(`Create`, context.TODO(), `gopher`, `gopher@kaliningrad.ru`).Return(entities.User{
 					ID:    1,
 					Name:  "gopher",
-					Email: "gopher@innopolis.ru",
+					Email: "gopher@kaliningrad.ru",
 				}, nil)
 
 				return fields{
@@ -113,17 +116,17 @@ func Test_handler_AddUser(t *testing.T) {
 			fields: func() fields {
 
 				mock := mocks.User{}
-				mock.On(`Create`, `gopher`, `gopher@innopolis.ru`).Return(entities.User{
+				mock.On(`Create`, context.TODO(), `gopher`, `gopher@kaliningrad.ru`).Return(entities.User{
 					ID:    1,
 					Name:  "gopher",
-					Email: "gopher@innopolis.ru",
+					Email: "gopher@kaliningrad.ru",
 				}, nil)
 
 				return fields{
 					us: &mock,
 				}
 			},
-			args:           setUpArgs(http.MethodPost, route, `{"email": "gopher@innopolis.ru"}`),
+			args:           setUpArgs(http.MethodPost, route, `{"email": "gopher@kaliningrad.ru"}`),
 			wantStatusCode: http.StatusBadRequest,
 			wantBody:       http.StatusText(http.StatusBadRequest),
 		},
@@ -132,13 +135,13 @@ func Test_handler_AddUser(t *testing.T) {
 			fields: func() fields {
 
 				mock := mocks.User{}
-				mock.On(`Create`, `gopher`, `gopher@innopolis.ru`).Return(entities.User{}, errors.New(`some error`))
+				mock.On(`Create`, context.TODO(), `gopher`, `gopher@kaliningrad.ru`).Return(entities.User{}, errors.New(`some error`))
 
 				return fields{
 					us: &mock,
 				}
 			},
-			args:           setUpArgs(http.MethodPost, route, `{"name": "gopher", "email": "gopher@innopolis.ru"}`),
+			args:           setUpArgs(http.MethodPost, route, `{"name": "gopher", "email": "gopher@kaliningrad.ru"}`),
 			wantStatusCode: http.StatusInternalServerError,
 			wantBody:       http.StatusText(http.StatusInternalServerError),
 		},
@@ -189,37 +192,37 @@ func Test_handler_EditUser(t *testing.T) {
 			fields: func() fields {
 				mock := mocks.User{}
 
-				mock.On(`UpdateEmail`, int64(1), `newGopher@innopolis.ru`).Return(entities.User{
+				mock.On(`UpdateEmail`, context.TODO(), int64(1), `newgopher@kaliningrad.ru`).Return(entities.User{
 					ID:    1,
 					Name:  `gopher`,
-					Email: `newGopher@innopolis.ru`,
+					Email: `newgopher@kaliningrad.ru`,
 				}, nil)
 
 				return fields{
 					us: &mock,
 				}
 			},
-			args:           setUpArgs(http.MethodPost, route, `{"user_id": 1, "email":"newGopher@innopolis.ru"}`),
+			args:           setUpArgs(http.MethodPost, route, `{"user_id": 1, "email":"newgopher@kaliningrad.ru"}`),
 			wantStatusCode: http.StatusOK,
-			wantBody:       `{"id":1,"name":"gopher","email":"newGopher@innopolis.ru"}`,
+			wantBody:       `{"id":1,"name":"gopher","email":"newgopher@kaliningrad.ru"}`,
 		},
 		{
 			name: `Error`,
 			fields: func() fields {
 				mock := mocks.User{}
 
-				mock.On(`UpdateEmail`, int64(1), `newGopher@innopolis.ru`).Return(entities.User{}, errors.New(`some error`))
+				mock.On(`UpdateEmail`, context.TODO(), int64(1), `newgopher@kaliningrad.ru`).Return(entities.User{}, errors.New(`some error`))
 
 				return fields{
 					us: &mock,
 				}
 			},
-			args:           setUpArgs(http.MethodPost, route, `{"user_id": 1, "email":"newGopher@innopolis.ru"}`),
+			args:           setUpArgs(http.MethodPost, route, `{"user_id": 1, "email":"newgopher@kaliningrad.ru"}`),
 			wantStatusCode: http.StatusInternalServerError,
 			wantBody:       http.StatusText(http.StatusInternalServerError),
 		},
 		{
-			name: `Bad payload`,
+			name: `Bad_payload`,
 			fields: func() fields {
 				mock := mocks.User{}
 				return fields{
@@ -231,7 +234,7 @@ func Test_handler_EditUser(t *testing.T) {
 			wantBody:       http.StatusText(http.StatusBadRequest),
 		},
 		{
-			name: `Bad payload empty email`,
+			name: `Bad_payload_empty_email`,
 			fields: func() fields {
 				mock := mocks.User{}
 
@@ -244,7 +247,7 @@ func Test_handler_EditUser(t *testing.T) {
 			wantBody:       http.StatusText(http.StatusBadRequest),
 		},
 		{
-			name: `Bad payload empty user_id`,
+			name: `Bad_payload_empty_user_id`,
 			fields: func() fields {
 				mock := mocks.User{}
 
@@ -261,13 +264,13 @@ func Test_handler_EditUser(t *testing.T) {
 			fields: func() fields {
 				mock := mocks.User{}
 
-				mock.On(`UpdateEmail`, int64(99), `newGopher@innopolis.ru`).Return(entities.User{}, sql.ErrNoRows)
+				mock.On(`UpdateEmail`, context.TODO(), int64(99), `newgopher@kaliningrad.ru`).Return(entities.User{}, sql.ErrNoRows)
 
 				return fields{
 					us: &mock,
 				}
 			},
-			args:           setUpArgs(http.MethodPost, route, `{"user_id": 99, "email":"newGopher@innopolis.ru"}`),
+			args:           setUpArgs(http.MethodPost, route, `{"user_id": 99, "email":"newgopher@kaliningrad.ru"}`),
 			wantStatusCode: http.StatusNotFound,
 			wantBody:       http.StatusText(http.StatusNotFound),
 		},
@@ -302,10 +305,10 @@ func Test_handler_GetUser(t *testing.T) {
 			fields: func() fields {
 				mock := mocks.User{}
 
-				mock.On(`Get`, int64(1)).Return(entities.User{
+				mock.On(`Get`, context.TODO(), int64(1)).Return(entities.User{
 					ID:    1,
 					Name:  `gopher`,
-					Email: `newGopher@innopolis.ru`,
+					Email: `newgopher@kaliningrad.ru`,
 				}, nil)
 
 				return fields{
@@ -314,14 +317,14 @@ func Test_handler_GetUser(t *testing.T) {
 			},
 			args:           setUpArgs(http.MethodGet, route, `{"user_id": 1}'`),
 			wantStatusCode: http.StatusOK,
-			wantBody:       `{"id":1,"name":"gopher","email":"newGopher@innopolis.ru"}`,
+			wantBody:       `{"id":1,"name":"gopher","email":"newgopher@kaliningrad.ru"}`,
 		},
 		{
-			name: `Error not found`,
+			name: `Error_not_found`,
 			fields: func() fields {
 				mock := mocks.User{}
 
-				mock.On(`Get`, int64(999)).Return(entities.User{}, sql.ErrNoRows)
+				mock.On(`Get`, context.TODO(), int64(999)).Return(entities.User{}, sql.ErrNoRows)
 
 				return fields{
 					us: &mock,
@@ -332,11 +335,11 @@ func Test_handler_GetUser(t *testing.T) {
 			wantBody:       http.StatusText(http.StatusNotFound),
 		},
 		{
-			name: `Error bad payload`,
+			name: `Error_bad_payload`,
 			fields: func() fields {
 				mock := mocks.User{}
 
-				mock.On(`Get`, int64(999)).Return(entities.User{}, sql.ErrNoRows)
+				mock.On(`Get`, context.TODO(), int64(999)).Return(entities.User{}, sql.ErrNoRows)
 
 				return fields{
 					us: &mock,
@@ -347,11 +350,11 @@ func Test_handler_GetUser(t *testing.T) {
 			wantBody:       http.StatusText(http.StatusBadRequest),
 		},
 		{
-			name: `Error wrong payload`,
+			name: `Error_wrong_payload`,
 			fields: func() fields {
 				mock := mocks.User{}
 
-				mock.On(`Get`, int64(999)).Return(entities.User{}, sql.ErrNoRows)
+				mock.On(`Get`, context.TODO(), int64(999)).Return(entities.User{}, sql.ErrNoRows)
 
 				return fields{
 					us: &mock,
@@ -362,11 +365,11 @@ func Test_handler_GetUser(t *testing.T) {
 			wantBody:       http.StatusText(http.StatusBadRequest),
 		},
 		{
-			name: `Error 500`,
+			name: `Error_500`,
 			fields: func() fields {
 				mock := mocks.User{}
 
-				mock.On(`Get`, int64(999)).Return(entities.User{}, errors.New(`some error`))
+				mock.On(`Get`, context.TODO(), int64(999)).Return(entities.User{}, errors.New(`some error`))
 
 				return fields{
 					us: &mock,
@@ -408,7 +411,7 @@ func Test_handler_RemoveUser(t *testing.T) {
 			fields: func() fields {
 				mock := mocks.User{}
 
-				mock.On(`Delete`, int64(999)).Return(nil)
+				mock.On(`Delete`, context.TODO(), int64(999)).Return(nil)
 
 				return fields{
 					us: &mock,
@@ -447,7 +450,7 @@ func Test_handler_RemoveUser(t *testing.T) {
 			fields: func() fields {
 				mock := mocks.User{}
 
-				mock.On(`Delete`, int64(999)).Return(sql.ErrNoRows)
+				mock.On(`Delete`, context.TODO(), int64(999)).Return(sql.ErrNoRows)
 
 				return fields{
 					us: &mock,
@@ -462,7 +465,7 @@ func Test_handler_RemoveUser(t *testing.T) {
 			fields: func() fields {
 				mock := mocks.User{}
 
-				mock.On(`Delete`, int64(999)).Return(errors.New(`some error`))
+				mock.On(`Delete`, context.TODO(), int64(999)).Return(errors.New(`some error`))
 
 				return fields{
 					us: &mock,
